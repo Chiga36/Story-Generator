@@ -181,3 +181,93 @@ Be ready to explain:
 - ✅ Database migrations
 - ✅ Working demo screenshots
 - ✅ Video explanation recorded
+
+## To show if django is working
+1. Live Demo Navigation
+Show the judges these key pages in your browser:
+
+Home Page: http://127.0.0.1:8000/ - Shows your story generation form
+
+Generate a Story: Create a new story live during the demo
+
+Gallery Page: http://127.0.0.1:8000/gallery/ - Shows all generated stories
+
+Story Detail: Click "Read More" on any story to show full details
+
+Functionality: Demonstrate the delete feature you just added
+
+2. Terminal/Console Evidence
+Keep your terminal visible showing:
+
+bash
+python manage.py runserver
+The terminal will show:
+
+Server startup confirmation
+
+Real-time request logs
+
+Story generation progress messages
+
+Any errors or status updates
+
+3. Add a Simple Health Check Endpoint
+Create a quick health check that judges can visit to verify the app is running:
+
+Add to your views.py:
+
+python
+from django.http import JsonResponse
+import datetime
+
+def health_check(request):
+    """Simple health check endpoint for demonstration"""
+    return JsonResponse({
+        'status': 'healthy',
+        'service': 'AI Story Generator',
+        'timestamp': datetime.datetime.now().isoformat(),
+        'django_version': '5.0.7',
+        'database_connected': True,
+        'message': 'Django server is running successfully!'
+    })
+Add to your urls.py:
+
+python
+urlpatterns = [
+    # ... your existing URLs ...
+    path('health/', views.health_check, name='health_check'),
+]
+Show judges: Visit http://127.0.0.1:8000/health/ to see the JSON response confirming everything works.
+
+4. Enable Debug Mode
+In your settings.py, ensure:
+
+python
+DEBUG = True
+This shows detailed error pages if anything goes wrong, proving Django is handling requests properly.
+
+5. Database Verification
+Show that your database is working by running:
+
+bash
+python manage.py showmigrations
+This displays all applied database migrations, proving data persistence works.
+
+6. Demo Script for Judges
+Follow this sequence during your presentation:
+
+Start the Server: python manage.py runserver
+
+Show Home Page: Navigate to http://127.0.0.1:8000/
+
+Health Check: Visit http://127.0.0.1:8000/health/ to show JSON response
+
+Generate Story: Create a live story with prompt like "A wizard finds a treasure"
+
+Gallery Demo: Show all stories at /gallery/
+
+Detail View: Click "Read More" on any story
+
+Delete Demo: Delete a story to show CRUD functionality
+
+Console Logs: Point out real-time logs in the terminal

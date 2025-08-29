@@ -24,4 +24,6 @@ urlpatterns = [
     path('result/<uuid:generation_id>/', views.story_result, name='story_result'),
 
     path('story/<uuid:story_id>/', views.story_detail, name='story_detail'),
+
+    path('health/', views.health_check, name='health_check'),
 ]

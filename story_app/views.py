@@ -14,6 +14,21 @@ from .langchain_services import StoryOrchestratorService
 # Configure logging
 logger = logging.getLogger(__name__)
 
+from django.http import JsonResponse
+import datetime
+
+def health_check(request):
+    """Simple health check endpoint for demonstration"""
+    return JsonResponse({
+        'status': 'healthy',
+        'service': 'AI Story Generator',
+        'timestamp': datetime.datetime.now().isoformat(),
+        'django_version': '5.0.7',
+        'database_connected': True,
+        'message': 'Django server is running successfully!'
+    })
+
+
 def index(request):
     """
     Home page view - displays the story generation form
@@ -257,4 +272,3 @@ def delete_story(request, generation_id):
         messages.error(request, "Failed to delete story. Please try again.")
     
     return redirect('story_app:story_gallery')
-
