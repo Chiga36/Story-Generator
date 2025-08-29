@@ -25,6 +25,10 @@
                     🗑️ Delete This Story
                 </button>
             </form>
+            <a href="{% url 'story_app:download_story_pdf' story_generation.id %}" 
+       class="btn btn-danger btn-lg" target="_blank">
+        📄 Download as PDF
+    </a>
         </div>
 
 

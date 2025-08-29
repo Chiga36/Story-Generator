@@ -44,6 +44,12 @@
                                                class="btn btn-sm btn-primary">
                                                 📖 Read More
                                             </a>
+
+                                            <!-- PDF Download Button -->
+        <a href="{% url 'story_app:download_story_pdf' story.id %}" 
+           class="btn btn-sm btn-outline-danger" target="_blank">
+            📄 PDF
+        </a>
                                             
                                             <!-- Delete Button with Confirmation -->
                                             <form method="post" action="{% url 'story_app:delete_story' story.id %}" class="d-inline"

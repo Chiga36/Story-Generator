@@ -272,3 +272,59 @@ def delete_story(request, generation_id):
         messages.error(request, "Failed to delete story. Please try again.")
     
     return redirect('story_app:story_gallery')
+
+# Remove or comment out the weasyprint import
+# import weasyprint
+
+# Add these imports instead
+from xhtml2pdf import pisa
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+import os
+
+@require_http_methods(["GET"])
+def download_story_pdf(request, generation_id):
+    """
+    Generate and download a PDF version of the story using xhtml2pdf
+    """
+    try:
+        story_generation = get_object_or_404(
+            StoryGeneration, 
+            id=generation_id,
+            generation_status='completed'
+        )
+        
+        # Render the PDF template with request context for absolute URLs
+        template_path = 'story_app/story_pdf_simple.html'
+        context = {
+            'story_generation': story_generation,
+            'request': request  # Add request to context for absolute URLs
+        }
+        html = render_to_string(template_path, context)
+        
+        # Create a Django response object with PDF content type
+        response = HttpResponse(content_type='application/pdf')
+        
+        # Create filename with story title
+        safe_title = "".join(c for c in story_generation.user_prompt[:20] if c.isalnum() or c in (' ', '-', '_')).rstrip()
+        filename = f"story_{safe_title}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        # Convert HTML to PDF with base URL for proper image loading
+        pisa_status = pisa.CreatePDF(
+            html, 
+            dest=response,
+            link_callback=lambda uri, rel: uri  # This helps with image loading
+        )
+        
+        if pisa_status.err:
+            logger.error(f"PDF generation failed for story {generation_id}")
+            messages.error(request, "Failed to generate PDF. Please try again.")
+            return redirect('story_app:story_detail', generation_id=generation_id)
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"PDF generation failed for story {generation_id}: {e}")
+        messages.error(request, "Failed to generate PDF. Please try again.")
+        return redirect('story_app:story_detail', generation_id=generation_id)
