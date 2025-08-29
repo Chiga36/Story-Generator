@@ -9,43 +9,50 @@
         <div class="card-body">
             
             <!-- Story Title -->
-            <h1 class="text-center mb-4">{{ story.user_prompt }}</h1>
-            <p class="text-center text-muted mb-4">Generated on {{ story.created_at|date:"F j, Y" }}</p>
+            <h1 class="text-center mb-4">{{ story_generation.user_prompt }}</h1>
+            <p class="text-center text-muted mb-4">Generated on {{ story_generation.created_at|date:"F j, Y" }}</p>
 
-            <!-- Main Story Scene -->
-            {% if story.combined_image %}
+            <!-- Generate Another Story Button -->
+            <div class="text-center mb-4">
+                <a href="{% url 'story_app:index' %}" class="btn btn-success btn-lg">
+                    ✨ Generate Another Story
+                </a>
+            </div>
+
+            <!-- Main Story Scene - FIXED URL CONSTRUCTION -->
+            {% if story_generation.combined_image %}
                 <div class="text-center mb-5">
-                    <img src="{{ story.combined_image.url }}" class="img-fluid rounded shadow" alt="Story Scene" style="max-height: 500px;">
+                    <img src="/media/generated_images/{{ story_generation.combined_image }}" class="img-fluid rounded shadow" alt="Story Scene" style="max-height: 500px;">
                 </div>
             {% endif %}
 
             <!-- Full Story Text -->
             <div class="mb-5">
                 <h3 class="text-primary mb-3">The Complete Story</h3>
-                <p style="font-size: 1.1rem; line-height: 1.8;">{{ story.story }}</p>
+                <p style="font-size: 1.1rem; line-height: 1.8;">{{ story_generation.story }}</p>
             </div>
 
-            <!-- Character and Background Images -->
+            <!-- Character and Background Images - FIXED URL CONSTRUCTION -->
             <div class="row">
                 <div class="col-md-6 mb-4">
                     <h4 class="text-success">Character</h4>
-                    {% if story.character_image %}
-                        <img src="{{ story.character_image.url }}" class="img-fluid rounded mb-3" alt="Character">
+                    {% if story_generation.character_image %}
+                        <img src="/media/generated_images/{{ story_generation.character_image }}" class="img-fluid rounded mb-3" alt="Character">
                     {% endif %}
-                    <p>{{ story.character_description }}</p>
+                    <p>{{ story_generation.character_description }}</p>
                 </div>
                 
                 <div class="col-md-6 mb-4">
                     <h4 class="text-warning">Background</h4>
-                    {% if story.background_image %}
-                        <img src="{{ story.background_image.url }}" class="img-fluid rounded mb-3" alt="Background">
+                    {% if story_generation.background_image %}
+                        <img src="/media/generated_images/{{ story_generation.background_image }}" class="img-fluid rounded mb-3" alt="Background">
                     {% endif %}
                     <p>The magical setting where this story unfolds.</p>
                 </div>
             </div>
 
             <!-- Back Button -->
-            <div class="text-center mt-4">
+            <div class="text-center mt-5">
                 <a href="{% url 'story_app:story_gallery' %}" class="btn btn-primary">← Back to Gallery</a>
             </div>
 

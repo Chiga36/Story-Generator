@@ -5,8 +5,15 @@
 {% block content %}
 <div class="row">
     <div class="col-12">
-        <h1 class="text-center mb-4">🌟 Story Gallery</h1>
-        <p class="text-center text-muted mb-5">Discover amazing stories created by our AI</p>
+    <h1 class="text-center mb-4">🌟 Story Gallery</h1>
+    <p class="text-center text-muted mb-3">Discover amazing stories created by our AI</p>
+    
+    <!-- ADD THIS NEW BUTTON -->
+    <div class="text-center mb-5">
+        <a href="{% url 'story_app:index' %}" class="btn btn-success btn-lg">
+            ✨ Generate New Story
+        </a>
+    </div>
         
         {% if stories %}
             <div class="row">
