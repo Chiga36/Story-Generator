@@ -1,0 +1,152 @@
+{% extends 'story_app/base.html' %}
+
+{% block title %}Your Generated Story{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <h1 class="text-center mb-4">📖 Your Generated Story</h1>
+        
+        {% if story_generation.generation_status == 'processing' %}
+            <!-- Processing State -->
+            <div class="text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="loading-spinner mb-3"></div>
+                        <h5>Creating Your Story...</h5>
+                        <p class="text-muted">This may take a few moments. The page will auto-refresh when ready.</p>
+                        <div class="progress mb-3">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 style="width: 70%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        {% elif story_generation.generation_status == 'completed' %}
+            <!-- Completed State -->
+            <div class="row">
+                <!-- Story Content -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5>📜 Your Story</h5>
+                            <small class="text-muted">Based on: "{{ story_generation.user_prompt }}"</small>
+                        </div>
+                        <div class="card-body">
+                            <p class="story-text">{{ story_generation.story|linebreaks }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>👤 Character Description</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>{{ story_generation.character_description|linebreaks }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Generated Images -->
+                <div class="col-md-6">
+                    {% if story_generation.combined_image %}
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>🎨 Story Scene</h5>
+                            </div>
+                            <div class="card-body text-center">
+                                <img src="{{ story_generation.combined_image_url }}" 
+                                     alt="Generated story scene" 
+                                     class="generated-image">
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if story_generation.character_image or story_generation.background_image %}
+                        <div class="row">
+                            {% if story_generation.character_image %}
+                                <div class="col-6">
+                                    <div class="card mb-3">
+                                        <div class="card-header text-center">
+                                            <small>Character</small>
+                                        </div>
+                                        <div class="card-body text-center p-2">
+                                            <img src="{{ story_generation.character_image_url }}" 
+                                                 alt="Character" 
+                                                 class="img-fluid">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            {% if story_generation.background_image %}
+                                <div class="col-6">
+                                    <div class="card mb-3">
+                                        <div class="card-header text-center">
+                                            <small>Background</small>
+                                        </div>
+                                        <div class="card-body text-center p-2">
+                                            <img src="{{ story_generation.background_image_url }}" 
+                                                 alt="Background" 
+                                                 class="img-fluid">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="text-center mt-4">
+                <a href="{% url 'story_app:index' %}" class="btn btn-primary">
+                    ✨ Generate Another Story
+                </a>
+                <a href="{% url 'story_app:story_gallery' %}" class="btn btn-outline-secondary">
+                    🌟 View Gallery
+                </a>
+            </div>
+        
+        {% elif story_generation.generation_status == 'failed' %}
+            <!-- Failed State -->
+            <div class="text-center">
+                <div class="card border-danger">
+                    <div class="card-body">
+                        <h5 class="text-danger">❌ Generation Failed</h5>
+                        <p class="text-muted">{{ story_generation.error_message }}</p>
+                        <a href="{% url 'story_app:index' %}" class="btn btn-primary">Try Again</a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if story_generation.generation_status == 'processing' %}
+<script>
+// Auto-refresh for processing stories
+setTimeout(function() {
+    location.reload();
+}, 5000); // Refresh every 5 seconds
+
+// Optional: AJAX polling for smoother updates
+function checkStatus() {
+    fetch('{% url "story_app:generation_status_api" story_generation.id %}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'completed' || data.status === 'failed') {
+                location.reload();
+            }
+        })
+        .catch(error => console.log('Status check failed:', error));
+}
+
+// Check status every 3 seconds
+setInterval(checkStatus, 3000);
+</script>
+{% endif %}
+{% endblock %}

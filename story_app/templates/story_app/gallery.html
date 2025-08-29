@@ -1,0 +1,53 @@
+{% extends 'story_app/base.html' %}
+
+{% block title %}Story Gallery{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="text-center mb-4">🌟 Story Gallery</h1>
+        <p class="text-center text-muted mb-5">Discover amazing stories created by our AI</p>
+        
+        {% if stories %}
+            <div class="row">
+                {% for story in stories %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card story-card h-100">
+                            {% if story.combined_image_url %}
+                                <img src="{{ story.combined_image_url }}" 
+                                     class="card-img-top" 
+                                     alt="Story scene"
+                                     style="height: 200px; object-fit: cover;">
+                            {% endif %}
+                            
+                            <div class="card-body d-flex flex-column">
+                                <h6 class="card-title">{{ story.user_prompt|truncatechars:50 }}</h6>
+                                <p class="card-text flex-grow-1">{{ story.story|truncatechars:120 }}</p>
+                                <div class="mt-auto">
+                                    <small class="text-muted">{{ story.created_at|date:"M d, Y" }}</small>
+                                    <a href="{% url 'story_app:story_detail' story.id %}" 
+                                       class="btn btn-sm btn-primary float-end">
+                                        Read More
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>📖 No Stories Yet</h5>
+                        <p class="text-muted">Be the first to create an amazing story!</p>
+                        <a href="{% url 'story_app:index' %}" class="btn btn-primary">
+                            ✨ Generate Your First Story
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

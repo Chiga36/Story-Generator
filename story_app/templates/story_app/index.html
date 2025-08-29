@@ -1,0 +1,127 @@
+{% extends 'story_app/base.html' %}
+
+{% block title %}Generate Your AI Story{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1 class="text-center mb-4">🧙‍♂️ Generate Your AI Story</h1>
+        <p class="text-center text-muted mb-5">
+            Enter a prompt or upload an audio file to create a magical story with characters and scenes!
+        </p>
+        
+        <!-- Story Generation Form -->
+        <form method="post" enctype="multipart/form-data" id="story-form">
+            {% csrf_token %}
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>📝 Create Your Story</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Text Input -->
+                    <div class="mb-3">
+                        <label for="id_user_prompt" class="form-label">Story Prompt</label>
+                        {{ form.user_prompt }}
+                        <div class="form-text">{{ form.user_prompt.help_text }}</div>
+                        {% if form.user_prompt.errors %}
+                            <div class="text-danger">
+                                {% for error in form.user_prompt.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- OR Divider -->
+                    <div class="text-center mb-3">
+                        <span class="text-muted">— OR —</span>
+                    </div>
+                    
+                    <!-- Audio Upload -->
+                    <div class="mb-3">
+                        <label for="id_audio_file" class="form-label">Upload Audio File</label>
+                        {{ form.audio_file }}
+                        <div class="form-text">{{ form.audio_file.help_text }}</div>
+                        {% if form.audio_file.errors %}
+                            <div class="text-danger">
+                                {% for error in form.audio_file.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Form Errors -->
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+                    <span id="btn-text">✨ Generate Story</span>
+                    <span id="btn-spinner" class="loading-spinner d-none"></span>
+                </button>
+            </div>
+        </form>
+        
+        <!-- Recent Stories -->
+        {% if recent_stories %}
+            <div class="mt-5">
+                <h3>🌟 Recent Stories</h3>
+                <div class="row">
+                    {% for story in recent_stories %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card story-card">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ story.user_prompt|truncatechars:50 }}</h6>
+                                    <p class="card-text text-muted">{{ story.story|truncatechars:100 }}</p>
+                                    <a href="{% url 'story_app:story_detail' story.id %}" class="btn btn-sm btn-outline-primary">
+                                        Read Full Story
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('story-form').addEventListener('submit', function() {
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnSpinner = document.getElementById('btn-spinner');
+    
+    // Show loading state
+    submitBtn.disabled = true;
+    btnText.classList.add('d-none');
+    btnSpinner.classList.remove('d-none');
+});
+
+// Clear text input when audio file is selected
+document.getElementById('id_audio_file').addEventListener('change', function() {
+    if (this.files.length > 0) {
+        document.getElementById('id_user_prompt').value = '';
+    }
+});
+
+// Clear audio input when text is typed
+document.getElementById('id_user_prompt').addEventListener('input', function() {
+    if (this.value.trim()) {
+        document.getElementById('id_audio_file').value = '';
+    }
+});
+</script>
+{% endblock %}

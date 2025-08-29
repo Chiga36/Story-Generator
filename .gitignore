@@ -1,0 +1,29 @@
+# Environment variables - NEVER commit real API keys!
+.env
+
+# Django
+*.pyc
+__pycache__/
+*.so
+.Python
+db.sqlite3
+db.sqlite3-journal
+
+# Media files
+/media/generated_images/*.png
+/media/generated_images/*.jpg
+/media/audio_uploads/*
+
+# Static files
+/staticfiles/
+/static/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

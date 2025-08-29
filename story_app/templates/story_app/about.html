@@ -1,0 +1,64 @@
+{% extends 'story_app/base.html' %}
+
+{% block title %}About AI Story Generator{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1 class="text-center mb-4">🧙‍♂️ About AI Story Generator</h1>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>🤖 How It Works</h5>
+                <p>Our AI Story Generator uses cutting-edge technology to create unique stories just for you:</p>
+                <ol>
+                    <li><strong>LangChain Orchestration:</strong> Manages the AI workflow</li>
+                    <li><strong>Google Gemini Pro:</strong> Generates creative stories and character descriptions</li>
+                    <li><strong>Image Generation:</strong> Creates visual representations of characters and scenes</li>
+                    <li><strong>Image Composition:</strong> Combines elements into a unified story scene</li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>⚡ Features</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li>✅ Text prompt input</li>
+                            <li>✅ Audio file upload (optional)</li>
+                            <li>✅ AI-generated stories</li>
+                            <li>✅ Character descriptions</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li>✅ Character images</li>
+                            <li>✅ Background scenes</li>
+                            <li>✅ Combined story visuals</li>
+                            <li>✅ Story gallery</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-body">
+                <h5>🛠️ Technology Stack</h5>
+                <p><strong>Backend:</strong> Django, LangChain, Google AI APIs</p>
+                <p><strong>Frontend:</strong> Bootstrap 5, JavaScript, HTML5</p>
+                <p><strong>AI Services:</strong> Google Gemini Pro, Google Cloud AI</p>
+                <p><strong>Image Processing:</strong> Pillow (PIL)</p>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="{% url 'story_app:index' %}" class="btn btn-primary btn-lg">
+                ✨ Create Your Story
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
