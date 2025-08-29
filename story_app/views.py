@@ -252,3 +252,18 @@ def handler404(request, exception):
 def handler500(request):
     """Custom 500 error handler"""
     return render(request, 'story_app/500.html', status=500)
+
+from django.shortcuts import render, get_object_or_404
+
+def story_detail(request, generation_id):  # Changed from story_id to generation_id
+    """Display full details of a specific story"""
+    story = get_object_or_404(StoryGeneration, id=generation_id)  # Changed from story_id to generation_id
+    
+    context = {
+        'story': story,
+        'page_title': 'Story Details'
+    }
+    
+    return render(request, 'story_app/story_detail.html', context)
+
+

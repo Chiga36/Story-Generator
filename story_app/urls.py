@@ -21,4 +21,6 @@ urlpatterns = [
     path('api/status/<uuid:generation_id>/', views.generation_status_api, name='generation_status_api'),
 
     path('result/<uuid:generation_id>/', views.story_result, name='story_result'),
+
+    path('story/<uuid:story_id>/', views.story_detail, name='story_detail'),
 ]

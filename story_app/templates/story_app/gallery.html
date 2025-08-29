@@ -25,10 +25,10 @@
                                 <p class="card-text flex-grow-1">{{ story.story|truncatechars:120 }}</p>
                                 <div class="mt-auto">
                                     <small class="text-muted">{{ story.created_at|date:"M d, Y" }}</small>
-                                    <a href="{% url 'story_app:story_detail' story.id %}" 
-                                       class="btn btn-sm btn-primary float-end">
-                                        Read More
-                                    </a>
+                                    <a href="{% url 'story_app:story_detail' story.id %}" class="btn btn-sm btn-primary">
+    Read More
+</a>
+
                                 </div>
                             </div>
                         </div>
