@@ -230,3 +230,31 @@ def handler404(request, exception):
 def handler500(request):
     """Custom 500 error handler"""
     return render(request, 'story_app/500.html', status=500)
+
+@require_http_methods(["POST"])
+def delete_story(request, generation_id):
+    """
+    Delete a specific story - only accessible via POST for security
+    """
+    try:
+        story_generation = get_object_or_404(StoryGeneration, id=generation_id)
+        
+        # Optional: Add user ownership check if you have authentication
+        # if story_generation.user and story_generation.user != request.user:
+        #     messages.error(request, "You can only delete your own stories.")
+        #     return redirect('story_app:story_gallery')
+        
+        # Delete the story
+        story_title = story_generation.user_prompt[:30] + "..." if len(story_generation.user_prompt) > 30 else story_generation.user_prompt
+        story_generation.delete()
+        
+        messages.success(request, f"Story '{story_title}' has been deleted successfully!")
+        
+    except Http404:
+        messages.error(request, "Story not found.")
+    except Exception as e:
+        logger.error(f"Error deleting story {generation_id}: {e}")
+        messages.error(request, "Failed to delete story. Please try again.")
+    
+    return redirect('story_app:story_gallery')
+

@@ -1,60 +1,79 @@
 {% extends 'story_app/base.html' %}
+{% load static %}
 
 {% block title %}Story Gallery{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12">
-    <h1 class="text-center mb-4">🌟 Story Gallery</h1>
-    <p class="text-center text-muted mb-3">Discover amazing stories created by our AI</p>
-    
-    <!-- ADD THIS NEW BUTTON -->
-    <div class="text-center mb-5">
-        <a href="{% url 'story_app:index' %}" class="btn btn-success btn-lg">
-            ✨ Generate New Story
-        </a>
-    </div>
-        
-        {% if stories %}
-            <div class="row">
-                {% for story in stories %}
-                    <div class="col-md-6 col-lg-4 mb-4">
-                        <div class="card story-card h-100">
-                            {% if story.combined_image_url %}
-                                <img src="{{ story.combined_image_url }}" 
-                                     class="card-img-top" 
-                                     alt="Story scene"
-                                     style="height: 200px; object-fit: cover;">
-                            {% endif %}
-                            
-                            <div class="card-body d-flex flex-column">
-                                <h6 class="card-title">{{ story.user_prompt|truncatechars:50 }}</h6>
-                                <p class="card-text flex-grow-1">{{ story.story|truncatechars:120 }}</p>
-                                <div class="mt-auto">
-                                    <small class="text-muted">{{ story.created_at|date:"M d, Y" }}</small>
-                                    <a href="{% url 'story_app:story_detail' story.id %}" class="btn btn-sm btn-primary">
-    Read More
-</a>
-
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4">🌟 Story Gallery</h1>
+            <p class="text-center text-muted mb-3">Discover amazing stories created by our AI</p>
+            
+            <!-- Generate New Story Button -->
+            <div class="text-center mb-5">
+                <a href="{% url 'story_app:index' %}" class="btn btn-success btn-lg">
+                    ✨ Generate New Story
+                </a>
+            </div>
+            
+            {% if stories %}
+                <div class="row">
+                    {% for story in stories %}
+                        <div class="col-md-6 col-lg-4 mb-4 d-flex align-items-stretch">
+                            <div class="card story-card h-100 shadow-sm">
+                                
+                                <!-- Story Image -->
+                                {% if story.combined_image %}
+                                    <img src="/media/generated_images/{{ story.combined_image }}" 
+                                         class="card-img-top" 
+                                         alt="Story scene"
+                                         style="height: 200px; object-fit: cover;">
+                                {% endif %}
+                                
+                                <div class="card-body d-flex flex-column">
+                                    <h6 class="card-title">{{ story.user_prompt|truncatechars:50 }}</h6>
+                                    <p class="card-text flex-grow-1">{{ story.story|truncatechars:120 }}</p>
+                                    
+                                    <div class="mt-auto">
+                                        <small class="text-muted d-block mb-2">{{ story.created_at|date:"M d, Y" }}</small>
+                                        
+                                        <!-- Action Buttons Row -->
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <a href="{% url 'story_app:story_detail' story.id %}" 
+                                               class="btn btn-sm btn-primary">
+                                                📖 Read More
+                                            </a>
+                                            
+                                            <!-- Delete Button with Confirmation -->
+                                            <form method="post" action="{% url 'story_app:delete_story' story.id %}" class="d-inline"
+                                                  onsubmit="return confirm('Are you sure you want to delete this story? This action cannot be undone.');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    🗑️ Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="text-center">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>📖 No Stories Yet</h5>
-                        <p class="text-muted">Be the first to create an amazing story!</p>
-                        <a href="{% url 'story_app:index' %}" class="btn btn-primary">
-                            ✨ Generate Your First Story
-                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5>📖 No Stories Yet</h5>
+                            <p class="text-muted">Be the first to create an amazing story!</p>
+                            <a href="{% url 'story_app:index' %}" class="btn btn-primary">
+                                ✨ Generate Your First Story
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -17,7 +17,16 @@
                 <a href="{% url 'story_app:index' %}" class="btn btn-success btn-lg">
                     ✨ Generate Another Story
                 </a>
-            </div>
+            <!-- Delete Button on Detail Page -->
+            <form method="post" action="{% url 'story_app:delete_story' story_generation.id %}" class="d-inline"
+                  onsubmit="return confirm('Are you sure you want to delete this story? You will be redirected to the gallery.');">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger btn-lg">
+                    🗑️ Delete This Story
+                </button>
+            </form>
+        </div>
+
 
             <!-- Main Story Scene - FIXED URL CONSTRUCTION -->
             {% if story_generation.combined_image %}

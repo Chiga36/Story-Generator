@@ -16,6 +16,7 @@ urlpatterns = [
     # Gallery and details
     path('gallery/', views.story_gallery, name='story_gallery'),
     path('story/<uuid:generation_id>/', views.story_detail, name='story_detail'),
+    path('story/<uuid:generation_id>/delete/', views.delete_story, name='delete_story'),
     
     # API endpoints
     path('api/status/<uuid:generation_id>/', views.generation_status_api, name='generation_status_api'),
