@@ -1,127 +1,259 @@
 {% extends 'story_app/base.html' %}
+{% load static %}
 
-{% block title %}Generate Your AI Story{% endblock %}
+{% block title %}AI Story Generator{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <h1 class="text-center mb-4">🧙‍♂️ Generate Your AI Story</h1>
-        <p class="text-center text-muted mb-5">
-            Enter a prompt or upload an audio file to create a magical story with characters and scenes!
-        </p>
-        
-        <!-- Story Generation Form -->
-        <form method="post" enctype="multipart/form-data" id="story-form">
-            {% csrf_token %}
-            
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5>📝 Create Your Story</h5>
-                </div>
-                <div class="card-body">
-                    <!-- Text Input -->
-                    <div class="mb-3">
-                        <label for="id_user_prompt" class="form-label">Story Prompt</label>
-                        {{ form.user_prompt }}
-                        <div class="form-text">{{ form.user_prompt.help_text }}</div>
-                        {% if form.user_prompt.errors %}
-                            <div class="text-danger">
-                                {% for error in form.user_prompt.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- OR Divider -->
-                    <div class="text-center mb-3">
-                        <span class="text-muted">— OR —</span>
-                    </div>
-                    
-                    <!-- Audio Upload -->
-                    <div class="mb-3">
-                        <label for="id_audio_file" class="form-label">Upload Audio File</label>
-                        {{ form.audio_file }}
-                        <div class="form-text">{{ form.audio_file.help_text }}</div>
-                        {% if form.audio_file.errors %}
-                            <div class="text-danger">
-                                {% for error in form.audio_file.errors %}
-                                    <small>{{ error }}</small>
-                                {% endfor %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    
-                    <!-- Form Errors -->
-                    {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {% for error in form.non_field_errors %}
-                                {{ error }}
-                            {% endfor %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Header Section -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 text-primary">✨ AI Story Generator</h1>
+                <p class="lead">Create magical stories with the power of AI</p>
+                <p class="text-muted">Type your prompt or record your voice to begin!</p>
+            </div>
+
+            <!-- Main Form Card -->
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <form method="post" enctype="multipart/form-data" id="story-form">
+                        {% csrf_token %}
+                        
+                        <!-- Text Input Section -->
+                        <div class="mb-4">
+                            <label for="prompt-input" class="form-label fw-bold">📝 Story Prompt</label>
+                            {{ form.user_prompt }}
                         </div>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Submit Button -->
-            <div class="text-center">
-                <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
-                    <span id="btn-text">✨ Generate Story</span>
-                    <span id="btn-spinner" class="loading-spinner d-none"></span>
-                </button>
-            </div>
-        </form>
-        
-        <!-- Recent Stories -->
-        {% if recent_stories %}
-            <div class="mt-5">
-                <h3>🌟 Recent Stories</h3>
-                <div class="row">
-                    {% for story in recent_stories %}
-                        <div class="col-md-6 mb-3">
-                            <div class="card story-card">
-                                <div class="card-body">
-                                    <h6 class="card-title">{{ story.user_prompt|truncatechars:50 }}</h6>
-                                    <p class="card-text text-muted">{{ story.story|truncatechars:100 }}</p>
-                                    <a href="{% url 'story_app:story_detail' story.id %}" class="btn btn-sm btn-outline-primary">
-                                        Read Full Story
-                                    </a>
+
+                        <!-- OR Divider (moved above audio section) -->
+                        <div class="text-center my-4">
+                            <span class="badge bg-secondary">OR</span>
+                        </div>
+
+                        <!-- Audio Recording Section -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">🎤 Voice Input</label>
+                            <div class="audio-controls d-flex align-items-center gap-3 mb-3">
+                                <button type="button" id="record-btn" class="btn btn-danger">
+                                    <i class="fas fa-microphone"></i> Start Recording
+                                </button>
+                                <button type="button" id="stop-btn" class="btn btn-secondary" disabled>
+                                    <i class="fas fa-stop"></i> Stop Recording
+                                </button>
+                                <button type="button" id="play-btn" class="btn btn-info" disabled>
+                                    <i class="fas fa-play"></i> Play
+                                </button>
+                                <button type="button" id="clear-btn" class="btn btn-outline-warning" disabled>
+                                    <i class="fas fa-trash"></i> Clear
+                                </button>
+                            </div>
+                            
+                            <!-- Audio playback element -->
+                            <audio id="audio-playback" class="w-100 mt-3" style="display: none;" controls></audio>
+                            
+                            <!-- Recording status -->
+                            <div id="recording-status" class="mt-3 p-3 bg-light rounded" style="display: none;">
+                                <div class="d-flex align-items-center">
+                                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status" aria-hidden="true"></div>
+                                    <strong>Recording...</strong>
                                 </div>
                             </div>
+                            
+                            <!-- Success message -->
+                            <div id="recording-success" class="mt-3 p-3 bg-success text-white rounded" style="display: none;">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <strong>Audio recorded successfully!</strong> Submit to transcribe and generate story.
+                            </div>
+                            
+                            <!-- Hidden file input -->
+                            {{ form.audio_file }}
                         </div>
-                    {% endfor %}
+
+                        <!-- Submit Button with Loading Animation -->
+                        <div class="text-center">
+                            <button type="submit" id="generate-btn" class="btn btn-primary btn-lg">
+                                <span id="btn-text">
+                                    <i class="fas fa-magic"></i> Generate Story
+                                </span>
+                                <span id="btn-spinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                                <span id="btn-loading-text" style="display: none;">Generating...</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        {% endif %}
+
+            <!-- Recent Stories Section -->
+            {% if recent_stories %}
+                <div class="mt-5">
+                    <h3 class="text-center mb-4">🌟 Recent Stories</h3>
+                    <div class="row">
+                        {% for story in recent_stories %}
+                            <div class="col-md-4 mb-3">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ story.user_prompt|truncatechars:40 }}</h6>
+                                        <p class="card-text text-muted small">{{ story.story|truncatechars:100 }}</p>
+                                        <small class="text-muted">{{ story.created_at|date:"M d, Y" }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-3">
+                        <a href="{% url 'story_app:story_gallery' %}" class="btn btn-outline-primary">
+                            View All Stories →
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<!-- Audio Recording JavaScript -->
 <script>
-document.getElementById('story-form').addEventListener('submit', function() {
-    const submitBtn = document.getElementById('submit-btn');
-    const btnText = document.getElementById('btn-text');
-    const btnSpinner = document.getElementById('btn-spinner');
+let mediaRecorder;
+let audioChunks = [];
+let isRecording = false;
+let recordedBlob = null;
+
+const recordBtn = document.getElementById('record-btn');
+const stopBtn = document.getElementById('stop-btn');
+const playBtn = document.getElementById('play-btn');
+const clearBtn = document.getElementById('clear-btn');
+const audioPlayback = document.getElementById('audio-playback');
+const audioInput = document.getElementById('audio-input');
+const promptInput = document.getElementById('prompt-input');
+const recordingStatus = document.getElementById('recording-status');
+const recordingSuccess = document.getElementById('recording-success');
+
+// Initialize audio recording
+async function initializeRecording() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        
+        mediaRecorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        };
+        
+        mediaRecorder.onstop = () => {
+            recordedBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const audioUrl = URL.createObjectURL(recordedBlob);
+            
+            // Show audio player
+            audioPlayback.src = audioUrl;
+            audioPlayback.style.display = 'block';
+            
+            // Enable play and clear buttons
+            playBtn.disabled = false;
+            clearBtn.disabled = false;
+            
+            // Create file for form submission
+            const file = new File([recordedBlob], 'recording.wav', { type: 'audio/wav' });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            audioInput.files = dataTransfer.files;
+            
+            // Show success message
+            recordingStatus.style.display = 'none';
+            recordingSuccess.style.display = 'block';
+            
+            // Clear text input to prioritize audio
+            promptInput.value = '';
+        };
+        
+    } catch (error) {
+        console.error('Error accessing microphone:', error);
+        alert('Could not access microphone. Please check your browser permissions.');
+    }
+}
+
+// Start recording
+recordBtn.addEventListener('click', async () => {
+    if (!mediaRecorder) {
+        await initializeRecording();
+    }
+    
+    if (mediaRecorder && mediaRecorder.state === 'inactive') {
+        audioChunks = [];
+        mediaRecorder.start();
+        isRecording = true;
+        
+        // Update UI
+        recordBtn.disabled = true;
+        stopBtn.disabled = false;
+        recordBtn.innerHTML = '<i class="fas fa-microphone"></i> Recording...';
+        recordBtn.classList.replace('btn-danger', 'btn-warning');
+        
+        // Show recording status
+        recordingStatus.style.display = 'block';
+        recordingSuccess.style.display = 'none';
+        audioPlayback.style.display = 'none';
+    }
+});
+
+// Stop recording
+stopBtn.addEventListener('click', () => {
+    if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        
+        // Update UI
+        recordBtn.disabled = false;
+        stopBtn.disabled = true;
+        recordBtn.innerHTML = '<i class="fas fa-microphone"></i> Record Again';
+        recordBtn.classList.replace('btn-warning', 'btn-danger');
+    }
+});
+
+// Play recording
+playBtn.addEventListener('click', () => {
+    if (audioPlayback.src) {
+        audioPlayback.play();
+    }
+});
+
+// Clear recording
+clearBtn.addEventListener('click', () => {
+    // Reset everything
+    recordedBlob = null;
+    audioChunks = [];
+    audioInput.value = '';
+    audioPlayback.src = '';
+    audioPlayback.style.display = 'none';
+    recordingSuccess.style.display = 'none';
+    recordingStatus.style.display = 'none';
+    
+    // Reset buttons
+    playBtn.disabled = true;
+    clearBtn.disabled = true;
+    recordBtn.innerHTML = '<i class="fas fa-microphone"></i> Start Recording';
+});
+
+// Loading animation for Generate button
+const generateBtn = document.getElementById('generate-btn');
+const btnText = document.getElementById('btn-text');
+const btnSpinner = document.getElementById('btn-spinner');
+const btnLoadingText = document.getElementById('btn-loading-text');
+
+document.getElementById('story-form').addEventListener('submit', (e) => {
+    const hasText = promptInput.value.trim().length > 0;
+    const hasAudio = audioInput.files.length > 0;
+    
+    if (!hasText && !hasAudio) {
+        e.preventDefault();
+        alert('Please provide either a text prompt or record audio before generating a story.');
+        return;
+    }
     
     // Show loading state
-    submitBtn.disabled = true;
-    btnText.classList.add('d-none');
-    btnSpinner.classList.remove('d-none');
-});
-
-// Clear text input when audio file is selected
-document.getElementById('id_audio_file').addEventListener('change', function() {
-    if (this.files.length > 0) {
-        document.getElementById('id_user_prompt').value = '';
-    }
-});
-
-// Clear audio input when text is typed
-document.getElementById('id_user_prompt').addEventListener('input', function() {
-    if (this.value.trim()) {
-        document.getElementById('id_audio_file').value = '';
-    }
+    generateBtn.disabled = true;
+    btnText.style.display = 'none';
+    btnSpinner.style.display = 'inline-block';
+    btnLoadingText.style.display = 'inline';
 });
 </script>
 {% endblock %}
